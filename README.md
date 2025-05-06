@@ -52,14 +52,14 @@ Original source: [OasisBrains](https://sites.wustl.edu/oasisbrains/home/oasis-1/
  Read the comments and run the codes cell by cell. You can also run the whole code at once, if you want. <br><br>
     
     
- The cells are as follows:
-        1) Inspect the image attributes 
-        2) Image processing and further analysis
-        3) CNN model training
-        4) Testing and the metrics
-        5) Debugging options for possible problems
-        6) Cross-validation (not done yet)
-        7) Final validation and save the model
+   The cells are as follows: <br>
+        1) Inspect the image attributes <br>
+        2) Image processing and further analysis <br>
+        3) CNN model training <br>
+        4) Testing and the metrics <br>
+        5) Debugging options for possible problems <br>
+        6) Cross-validation (not done yet) <br>
+        7) Final validation and save the model <br>
 
 
 Cells are constructed by the command " **#%%** " in Spyder IDE. <br><br>
