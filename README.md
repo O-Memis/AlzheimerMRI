@@ -6,6 +6,10 @@ May 2025 - Oguzhan Memis
 
 <br><br>
 
+:tr: Türkçe: Derin Öğrenme ile Alzheimer MR görüntülerinin sınıflandırılması. Aksiyal (tranverse) eksende T1-Weighted MR görüntüleri çekilerek hazırlanmış olan, erişime açık bir veri seti kullanılmıştır. Bu veri setinde 4 adet sınıf bulunmaktadır. PyTorch kütüphanesi ile yazılmış bir CNN modeli kullanılarak, bu görüntüler başarıyla sınıflandırılmıştır.
+
+<br><br>
+
 ## Content
 1) Dataset Description
 2) Code Organization
@@ -52,14 +56,14 @@ Original source: [OasisBrains](https://sites.wustl.edu/oasisbrains/home/oasis-1/
  Read the comments and run the codes cell by cell. You can also run the whole code at once, if you want. <br><br>
     
     
-   The cells are as follows: <br>
-        1) Inspect the image attributes <br>
-        2) Image processing and further analysis <br>
-        3) CNN model training <br>
-        4) Testing and the metrics <br>
-        5) Debugging options for possible problems <br>
+   The cells are as follows: <br><br>
+        1) Importing general libraries for modular usage <br>
+        2) Inspect the image attributes <br>
+        3) Image processing for further analysis <br>
+        4) CNN model training <br>
+        5) Testing and evaluation <br>
         6) Cross-validation (not done yet) <br>
-        7) Final validation and save the model <br>
+        7) Demo: Use the saved model <br>
 
 
 Cells are constructed by the command " **#%%** " in Spyder IDE. <br><br>
