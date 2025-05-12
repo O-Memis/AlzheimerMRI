@@ -34,16 +34,34 @@ https://www.kaggle.com/datasets/ninadaithal/imagesoasis
 
 
 
-
-
-
-#%% 1) Inspect the image attributes
+#%% 1) Importing general libraries for modular usage
 
 
 import os
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
+
+import torch
+import torch.nn as nn
+import torchvision
+from torchvision import datasets, transforms
+import torch.optim as optim
+from torch.utils.data import DataLoader, random_split
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, f1_score
+
+
+
+
+
+
+
+
+#%% 2) Inspect the image attributes
+
+
+
 
 
 
@@ -174,16 +192,9 @@ for detail in detailed_info:
 
 
 
-#%% 2) Image processing and further analysis
+#%% 3) Image processing and further analysis
 
 
-
-
-
-
-
-from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
 
 
 
@@ -205,21 +216,7 @@ dataset = datasets.ImageFolder(root=image_dir, transform=transform)
 
 
 
-
-
-#%% 3) CNN model training
-
-
-
-
-import torch
-import torch.nn as nn
-import torchvision
-from torchvision import datasets, transforms
-import torch.optim as optim
-from torch.utils.data import DataLoader, random_split
-from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, f1_score
-import seaborn as sns
+#%% 4) CNN model training
 
 
 
@@ -440,7 +437,8 @@ for epoch in range(epochs):
     print(f"Test Loss: {test_loss:.4f}, Test Accuracy: {test_accuracy:.2f}%")
 
 
-#%% 4) Testing and metrics
+#%% 5) Testing and evaluation
+
 
 
 print("\nRestoring best model weights...")
@@ -510,7 +508,27 @@ plt.ylabel('True Label')
 plt.show()
 
 
-#%% debug if needed
+#%% Optional1: save the current model
+
+
+
+torch.save(model, 'alzheimer_mri_alexnet1.pth') # saves the whole structure
+
+
+# you will need to specify the model architecture to use it later.
+
+
+"""
+If you want to save only the weights of the model, this can be used:
+    
+torch.save(model.state_dict(), 'alzheimer_mri_alexnet1.pth')
+    
+"""
+
+
+
+#%% Optional2: debug if needed
+
 
 
 for _, labels in train_loader:
@@ -532,52 +550,146 @@ torch.cuda.get_device_name(torch.cuda.current_device())  # Should return the GPU
 
 
 
-#%% 5) Cross-validation
+#%% 6) Cross-validation
 
 
 
 
 
 
-#%% 6) Final test and save the model
+#%% 7) Demo: Use the saved model
 
 
 
+# RUN THE SECTIONS 1) AND 3) 
+
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+
+
+# 1) Select an image from the dataset arbitrarily
 image_path = "Data/Moderate Dementia/OAS1_0308_MR1_mpr-2_100.jpg"  
 
-image = cv2.imread(image_path)
-
+image = cv2.imread(image_path) # it outputs a numpy array
 
 plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
 plt.title(f"Testing: {image_path}")
 plt.show()
 
 
-# Apply transforms for consistency
+
+
+# 2) Apply the transforms for consistency
+
 transform = transforms.Compose([
-    transforms.ToPILImage(),
+    transforms.ToPILImage(),                       # PIL convertion is manually performed
     transforms.Grayscale(num_output_channels=1),
     transforms.ToTensor(),
 ])
+
 
 image_tensor = transform(image).unsqueeze(0).to(device)  
 
 
 
 
+# 3) Load the saved model------------copy the architecture to reuse------------
+
+class AlexNet(nn.Module):
+
+    def __init__(self):
+        super(AlexNet, self).__init__()
+
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=(3, 3), stride=(2, 2))  
+        self.relu1 = nn.SiLU()  
+        self.lrn1 = nn.BatchNorm2d(32)  
+        self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)  
+       
+        self.conv2 = nn.Conv2d(32, 96, kernel_size=3, padding=1)  
+        self.relu2 = nn.SiLU()  
+        self.lrn2 = nn.BatchNorm2d(96)  
+        self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)  
+       
+        self.conv3 = nn.Conv2d(96, 288, kernel_size=3, padding=1)  
+        self.relu3 = nn.SiLU()  
+       
+        self.conv4 = nn.Conv2d(288, 288, kernel_size=3, padding=1)  
+        self.relu4 = nn.SiLU()  
+       
+        self.conv5 = nn.Conv2d(288, 288, kernel_size=3, padding=1)  
+        self.relu5 = nn.SiLU()  
+        self.pool5 = nn.MaxPool2d(kernel_size=2, stride=2)  
+    
+        self.flatten = nn.Flatten()   
+     
+        self.fc1 = nn.Linear(288*15*30, 4096)
+        self.relu6 = nn.SiLU()  
+        self.dropout1 = nn.Dropout(p=0.2)  
+        self.fc2 = nn.Linear(4096, 512)  
+        self.relu7 = nn.SiLU()  
+        self.dropout2 = nn.Dropout(p=0.1)  
+        self.fc3 = nn.Linear(512, 4)  
+
+    def forward(self, x):
+        
+        x = self.conv1(x)
+        x = self.relu1(x)
+        x = self.lrn1(x)
+        x = self.pool1(x)
+       
+        x = self.conv2(x)
+        x = self.relu2(x)
+        x = self.lrn2(x)
+        x = self.pool2(x)
+       
+        x = self.conv3(x)
+        x = self.relu3(x)
+       
+        x = self.conv4(x)
+        x = self.relu4(x)
+        
+        x = self.conv5(x)
+        x = self.relu5(x)
+        x = self.pool5(x)
+       
+        x = self.flatten(x)  
+        x = self.fc1(x)
+        x = self.relu6(x)
+        x = self.dropout1(x)
+
+        x = self.fc2(x)
+        x = self.relu7(x)
+        x = self.dropout2(x)
+
+        x = self.fc3(x)
+
+        return x
+
+
+model = torch.load('alzheimer_mri_alexnet1.pth', map_location=device, weights_only=False)
+
+
+
+
+
+# 4) Use the model in testing state--------------------------------------------
 model.eval()
 with torch.no_grad():
-    output = model(image_tensor)
-    _, predicted = torch.max(output, 1)
-    predicted_idx = predicted.item()
+    output = model(image_tensor)          # apply the model
+    _, predicted = torch.max(output, 1)   # get the probability
+    predicted_idx = predicted.item()      # get the predicted class id (0,1,2,3)
+
+
 
 # Get class the names 
 class_names = dataset.classes
 predicted_class = class_names[predicted_idx]
 
 
+# 5) Result
 print(f"Predicted class: {predicted_class}")
 print(f"Predicted class ID: {predicted_idx}")
 
 
-torch.save(model.state_dict(), 'alzheimer_mri_alexnet1.pth')
