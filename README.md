@@ -71,17 +71,18 @@ Cells are constructed by the command " **#%%** " in Spyder IDE. <br><br>
 
 ## 3-Current Results
 
- Test Accuracy: 0.9966 <br>
- Test Precision: 0.9966 <br>
- Test F1 Score: 0.9965 <br>
- Test Recall: 0.9966 
+ Test **Accuracy**: %99,66 <br>
+ Test **Precision**: %99,66 <br>
+ Test **F1 Score**: %99,65 <br>
+ Test **Recall**: %99,66 
 
  <br><br>
- 5-Fold Cross-Validation Results:
- Average Accuracy: 0.9955 ± 0.0032 <br>
- Average Precision: 0.9956 ± 0.0031 <br>
- Average Recall: 0.9955 ± 0.0032 <br>
- Average F1 Score: 0.9955 ± 0.0032 <br> <br>
+ 5-Fold Cross-Validation Results: <br>
+ Average **Accuracy**: %99,55 ± %00,32 <br>
+ Average **Precision**: %99,56 ± %00,31 <br>
+ Average **F1 Score**: %99,55 ± %00,32 <br> 
+ Average **Recall**: %99,55 ± %00,32 <br>
 
 
+<br>
  Obtained by slightly modified AlexNet architecture.
