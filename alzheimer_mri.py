@@ -48,8 +48,8 @@ import torch.nn as nn
 import torchvision
 from torchvision import datasets, transforms
 import torch.optim as optim
-from torch.utils.data import DataLoader, random_split
-from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, f1_score
+from torch.utils.data import DataLoader, random_split, TensorDataset
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, f1_score, recall_score
 
 
 
@@ -221,8 +221,6 @@ dataset = datasets.ImageFolder(root=image_dir, transform=transform)
 
 
 
-
-
 # 1. Processing Unit Selection
 print("CUDA Availability:", torch.cuda.is_available())
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -234,9 +232,9 @@ print(f"Computing Device: {device}")
 
 # ---------------------------------------------------------Hyperparameters here
 lr = 0.001 # learning rate
-batch = 64
-epochs = 30 
-patience = 10  # Early stopping patience
+batch = 128
+epochs = 10 
+patience = 5  # Early stopping patience
 
 
 
@@ -274,21 +272,21 @@ class AlexNet(nn.Module):
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)  
 
         # Second Convolutional Layer
-        self.conv2 = nn.Conv2d(32, 96, kernel_size=3, padding=1)  # Input: 32 channels, Output: 96 channels
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)  # Input: 32 channels, Output: 96 channels
         self.relu2 = nn.SiLU()  
-        self.lrn2 = nn.BatchNorm2d(96)  
+        self.lrn2 = nn.BatchNorm2d(64)  
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)  
 
         # Third Convolutional Layer
-        self.conv3 = nn.Conv2d(96, 288, kernel_size=3, padding=1)  
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)  
         self.relu3 = nn.SiLU()  
 
         # Fourth Convolutional Layer
-        self.conv4 = nn.Conv2d(288, 288, kernel_size=3, padding=1)  
+        self.conv4 = nn.Conv2d(128, 128, kernel_size=3, padding=1)  
         self.relu4 = nn.SiLU()  
 
         # Fifth Convolutional Layer
-        self.conv5 = nn.Conv2d(288, 288, kernel_size=3, padding=1)  
+        self.conv5 = nn.Conv2d(128, 64, kernel_size=3, padding=1)  
         self.relu5 = nn.SiLU()  
         self.pool5 = nn.MaxPool2d(kernel_size=2, stride=2)  
 
@@ -296,7 +294,7 @@ class AlexNet(nn.Module):
         self.flatten = nn.Flatten()  # Flattens the feature maps into a vector 
 
         # Fully Connected Layers
-        self.fc1 = nn.Linear(288*15*30, 4096)
+        self.fc1 = nn.Linear(64*15*30, 4096)
         self.relu6 = nn.SiLU()  
         self.dropout1 = nn.Dropout(p=0.2)  
 
@@ -448,6 +446,7 @@ if best_model_state is not None:
     print(f"Best model restored with test accuracy: {best_test_accuracy:.2f}%")
 
 
+
 # 11. Final evaluation
 model.eval()
 test_loss = 0.0
@@ -469,10 +468,12 @@ with torch.no_grad():
 accuracy = accuracy_score(y_true_test, y_pred_test)
 precision = precision_score(y_true_test, y_pred_test, average='weighted')
 f1 = f1_score(y_true_test, y_pred_test, average='weighted')
+recal = recall_score(y_true_test, y_pred_test, average='weighted')
 
 print(f'Test Accuracy: {accuracy:.4f}')
 print(f'Test Precision: {precision:.4f}')
 print(f'Test F1 Score: {f1:.4f}')
+print(f'Test Recall: {recal:.4f}')
 
 
 
@@ -508,11 +509,140 @@ plt.ylabel('True Label')
 plt.show()
 
 
+
+#%% 6) Cross-validation
+
+
+from sklearn.model_selection import StratifiedKFold
+
+
+# ---------------------------------------------------------Hyperparameters here
+lr = 0.001 # learning rate
+batch = 128
+epochs = 10 
+patience = 5  # Early stopping patience
+
+# Use SubsetRandomSampler approach instead of extracting features
+k = 5
+skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
+
+# Get all labels from the training dataset for stratification
+train_labels = []
+for _, label in train_data:
+    if isinstance(label, torch.Tensor):
+        train_labels.append(label.item())
+    else:
+        train_labels.append(label)
+
+train_labels = np.array(train_labels)
+
+# store metrics for each fold
+fold_accuracies = []
+fold_precisions = []
+fold_recalls = []
+fold_f1_scores = []
+
+# K-fold cross-validation loop
+for fold, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(train_labels)), train_labels)):
+    print(f"Fold {fold+1}/{k}")
+    
+    # Use samplers instead of recreating datasets
+    from torch.utils.data import SubsetRandomSampler
+    
+    train_sampler = SubsetRandomSampler(train_idx)
+    val_sampler = SubsetRandomSampler(val_idx)
+    
+    fold_train_loader = DataLoader(train_data, batch_size=batch, sampler=train_sampler)
+    fold_val_loader = DataLoader(train_data, batch_size=batch, sampler=val_sampler)
+    
+    # Initialize a new model for each fold
+    model = AlexNet().to(device)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=0.0005)
+    
+    # Training loop for this fold
+    early_stopping_counter = 0
+    best_val_accuracy = 0
+    
+    for epoch in range(epochs):
+        # Training phase
+        model.train()
+        for inputs, labels in fold_train_loader:
+            inputs, labels = inputs.to(device), labels.to(device)
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+        
+        # Validation phase
+        model.eval()
+        val_true = []
+        val_pred = []
+        
+        with torch.no_grad():
+            for inputs, labels in fold_val_loader:
+                inputs, labels = inputs.to(device), labels.to(device)
+                outputs = model(inputs)
+                _, predicted = torch.max(outputs, 1)
+                val_true.extend(labels.cpu().numpy())
+                val_pred.extend(predicted.cpu().numpy())
+        
+        # Calculate validation metrics
+        val_accuracy = accuracy_score(val_true, val_pred)
+        
+        # Early stopping check (without saving the model)
+        if val_accuracy > best_val_accuracy:
+            best_val_accuracy = val_accuracy
+            early_stopping_counter = 0
+        else:
+            early_stopping_counter += 1
+            
+        if early_stopping_counter >= patience:
+            print(f"Early stopping triggered at epoch {epoch+1}")
+            break
+    
+    # Final evaluation for this fold
+    model.eval()
+    val_true = []
+    val_pred = []
+    
+    with torch.no_grad():
+        for inputs, labels in fold_val_loader:
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = model(inputs)
+            _, predicted = torch.max(outputs, 1)
+            val_true.extend(labels.cpu().numpy())
+            val_pred.extend(predicted.cpu().numpy())
+    
+    # Calculate and store metrics with 'weighted' average
+    fold_accuracy = accuracy_score(val_true, val_pred)
+    fold_precision = precision_score(val_true, val_pred, average='weighted')
+    fold_recall = recall_score(val_true, val_pred, average='weighted')
+    fold_f1 = f1_score(val_true, val_pred, average='weighted')
+    
+    fold_accuracies.append(fold_accuracy)
+    fold_precisions.append(fold_precision)
+    fold_recalls.append(fold_recall)
+    fold_f1_scores.append(fold_f1)
+    
+    print(f"Fold {fold+1} - Accuracy: {fold_accuracy:.4f}, Precision: {fold_precision:.4f}, "
+          f"Recall: {fold_recall:.4f}, F1: {fold_f1:.4f}")
+
+# Final metrics across all folds
+print("\nK-Fold Cross-Validation Results:")
+print(f"Average Accuracy: {np.mean(fold_accuracies):.4f} ± {np.std(fold_accuracies):.4f}")
+print(f"Average Precision: {np.mean(fold_precisions):.4f} ± {np.std(fold_precisions):.4f}")
+print(f"Average Recall: {np.mean(fold_recalls):.4f} ± {np.std(fold_recalls):.4f}")
+print(f"Average F1 Score: {np.mean(fold_f1_scores):.4f} ± {np.std(fold_f1_scores):.4f}")
+
+
+
 #%% Optional1: save the current model
 
 
 
-torch.save(model, 'alzheimer_mri_alexnet1.pth') # saves the whole structure
+torch.save(model, 'alzheimer_mri_alexnet2.pth') # saves the whole structure
 
 
 # you will need to specify the model architecture to use it later.
@@ -550,7 +680,11 @@ torch.cuda.get_device_name(torch.cuda.current_device())  # Should return the GPU
 
 
 
-#%% 6) Cross-validation
+
+
+
+
+
 
 
 
@@ -570,7 +704,10 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 # 1) Select an image from the dataset arbitrarily
-image_path = "Data/Moderate Dementia/OAS1_0308_MR1_mpr-2_100.jpg"  
+image_path = "Data/Very mild Dementia/OAS1_0023_MR1_mpr-1_133.jpg"  
+
+
+#Moderate Dementia/OAS1_0308_MR1_mpr-2_100.jpg
 
 image = cv2.imread(image_path) # it outputs a numpy array
 

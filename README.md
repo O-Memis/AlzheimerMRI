@@ -62,7 +62,7 @@ Original source: [OasisBrains](https://sites.wustl.edu/oasisbrains/home/oasis-1/
         3) Image processing for further analysis <br>
         4) CNN model training <br>
         5) Testing and evaluation <br>
-        6) Cross-validation (not done yet) <br>
+        6) k-fold Cross-validation <br>
         7) Demo: Use the saved model <br>
 
 
@@ -71,8 +71,17 @@ Cells are constructed by the command " **#%%** " in Spyder IDE. <br><br>
 
 ## 3-Current Results
 
- %99,8 Test accuracy  <br>
- %99,8 Test precision <br>
- %99,8 Test F1 score <br>
+ Test Accuracy: 0.9966 <br>
+ Test Precision: 0.9966 <br>
+ Test F1 Score: 0.9965 <br>
+ Test Recall: 0.9966 
 
- Obtained by slightly modified AlexNet CNN model.
+ <br><br>
+ 5-Fold Cross-Validation Results:
+ Average Accuracy: 0.9955 ± 0.0032 <br>
+ Average Precision: 0.9956 ± 0.0031 <br>
+ Average Recall: 0.9955 ± 0.0032 <br>
+ Average F1 Score: 0.9955 ± 0.0032 <br> <br>
+
+
+ Obtained by slightly modified AlexNet architecture.
