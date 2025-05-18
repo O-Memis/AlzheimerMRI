@@ -1,12 +1,14 @@
 # AlzheimerMRI
- Classification of T1-Weighted MRI images of Alzheimer's Disease, in Python. Obtained from an open-source dataset. Supervised classification is done by designing a CNN model by using the PyTorch library. 
+ Classification of T1-Weighted MRI images of Alzheimer's Disease, in Python. Obtained from an open-source dataset. Supervised classification is done by designing a CNN model by using the PyTorch library. :x_ray:
+<br>
 
+![Alt text](medical-imaging-logo.png)
 <br><br>
 May 2025 - Oguzhan Memis
 
 <br><br>
 
-:tr: Türkçe: Derin Öğrenme ile Alzheimer MR görüntülerinin sınıflandırılması. Aksiyal (tranverse) eksende T1-Weighted MR görüntüleri çekilerek hazırlanmış olan, erişime açık bir veri seti kullanılmıştır. Bu veri setinde 4 adet sınıf bulunmaktadır. PyTorch kütüphanesi ile yazılmış bir CNN modeli kullanılarak, bu görüntüler başarıyla sınıflandırılmıştır.
+:tr: Türkçe: Derin Öğrenme ile Alzheimer MR görüntülerinin sınıflandırılması. Aksiyal (tranverse) eksende T1-Weighted MR görüntüleri çekilerek hazırlanmış olan, erişime açık bir veri seti kullanılmıştır. Bu veri setinde 4 adet sınıf bulunmaktadır. PyTorch kütüphanesi ile yazılmış bir CNN modeli kullanılarak, bu görüntüler başarıyla sınıflandırılmıştır. :x_ray:
 
 <br><br>
 
@@ -22,12 +24,12 @@ May 2025 - Oguzhan Memis
 
 ## 1-Dataset Description
 
-OASIS-1 DATASET (2007) : Alzheimer's Disease (AD) Brain MRI Images <br>
+ OASIS-1 DATASET (2007) : Alzheimer's Disease (AD) Brain MRI Images <br>
 
-Obtained from here for educational purpose: 
-[Kaggle](https://www.kaggle.com/datasets/ninadaithal/imagesoasis) <br>
+ Obtained from here for educational purpose: 
+ [Kaggle](https://www.kaggle.com/datasets/ninadaithal/imagesoasis) <br>
 
-Original source: [OasisBrains](https://sites.wustl.edu/oasisbrains/home/oasis-1/) <br><br>
+ Original source: [OasisBrains](https://sites.wustl.edu/oasisbrains/home/oasis-1/) <br><br>
 
 
 **Data characteristics:** 
@@ -86,3 +88,5 @@ Cells are constructed by the command " **#%%** " in Spyder IDE. <br><br>
 
 <br>
  Obtained by slightly modified AlexNet architecture.
+
+
