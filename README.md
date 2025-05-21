@@ -2,7 +2,7 @@
  Classification of T1-Weighted MRI images of Alzheimer's Disease, in Python. Obtained from an open-source dataset. Supervised classification is done by designing a CNN model by using the PyTorch library. :x_ray:
 <br>
 
-![Alt text](medical-imaging-logo.png){: style="width: 300px; height: 300px;"}
+![Alt text](medical-imaging-logo.png)
 <br><br>
 May 2025 - Oguzhan Memis
 
@@ -68,8 +68,9 @@ May 2025 - Oguzhan Memis
         7) Demo: Use the saved model <br><br>
 
 
->Cells are constructed by the command " **#%%** " in Spyder IDE. <br><br>
+>Cells are constructed by the command " **#%%** " in Spyder IDE. 
 
+<br><br>
 
 ## 3) Current Results
 
