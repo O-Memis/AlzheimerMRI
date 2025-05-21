@@ -2,7 +2,7 @@
  Classification of T1-Weighted MRI images of Alzheimer's Disease, in Python. Obtained from an open-source dataset. Supervised classification is done by designing a CNN model by using the PyTorch library. :x_ray:
 <br>
 
-![Alt text](medical-imaging-logo.png)
+![Alt text](medical-imaging-logo.png){: style="width: 300px; height: 300px;"}
 <br><br>
 May 2025 - Oguzhan Memis
 
@@ -22,7 +22,7 @@ May 2025 - Oguzhan Memis
 
 
 
-## 1-Dataset Description
+## 1) Dataset Description
 
  OASIS-1 DATASET (2007) : Alzheimer's Disease (AD) Brain MRI Images <br>
 
@@ -52,7 +52,7 @@ May 2025 - Oguzhan Memis
 
 <br><br>
 
-# 2-Code Organization
+## 2) Code Organization
 
  The codes are separated into 7 different cells based on general Deep Learning workflow. <br>
  Read the comments and run the codes cell by cell. You can also run the whole code at once, if you want. <br><br>
@@ -61,17 +61,17 @@ May 2025 - Oguzhan Memis
    The cells are as follows: <br><br>
         1) Importing general libraries for modular usage <br>
         2) Inspect the image attributes <br>
-        3) Image processing for further analysis <br>
+        3) Dataset preparation <br>
         4) CNN model training <br>
-        5) Testing and evaluation <br>
+        5) Final evaluation and the metrics <br>
         6) k-fold Cross-validation <br>
-        7) Demo: Use the saved model <br>
+        7) Demo: Use the saved model <br><br>
 
 
-Cells are constructed by the command " **#%%** " in Spyder IDE. <br><br>
+>Cells are constructed by the command " **#%%** " in Spyder IDE. <br><br>
 
 
-## 3-Current Results
+## 3) Current Results
 
  Test **Accuracy**: %99,66 <br>
  Test **Precision**: %99,66 <br>
@@ -90,3 +90,5 @@ Cells are constructed by the command " **#%%** " in Spyder IDE. <br><br>
  Obtained by slightly modified AlexNet architecture.
 
 
+<br><br>
+:mailbox: Contact me at memisoguzhants@gmail.com <br> I'm waiting for your suggestions and contributions.
